@@ -5,23 +5,14 @@ const request = require('request');
 const app = express();
 app.use(express.json());
 
-// GET Call for the balance
-app.get("/getPokemonData", (req, res) => {
+// GET Call for the pokemon data
+app.get("/getPokemonData", async (req, res) => {
 
-    let response = null
-
-    getPokemonData().then(data => {
-        response = {
-            count: data.length,
-            pokemon: data
-        }
-        console.log(response)
-    })
-
+    let pokemonData = await getPokemonData()
 
     return res.status(200).send({
-        status: "true",
-        response: response
+        count: pokemonData.length,
+        pokemon: pokemonData
     });
 });
 
