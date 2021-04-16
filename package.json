@@ -1,0 +1,25 @@
+{
+  "name": "node-api",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Neha Upadhyay",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "~1.18.2",
+    "express": "~4.16.1",
+    "moment": "^2.29.1",
+    "mongoose": "~4.11.14",
+    "morgan": "~1.9.0",
+    "tcomb-validation": "^3.4.1",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "request": "^2.88.2"
+  }
+}
