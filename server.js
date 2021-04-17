@@ -8,18 +8,30 @@ app.use(express.json());
 // GET Call for the pokemon data
 app.get("/getPokemonData", async (req, res) => {
 
-    let pokemonData = await getPokemonData()
+    if ( !req.body.type && !req.body.habitat) {
+        return res.status(400).send( {
+            response: "Invalid request"
+        });
+    }
 
-    return res.status(200).send({
-        count: pokemonData.length,
-        pokemon: pokemonData
-    });
+    try {
+        let pokemonData = await getPokemonData(req.body.type, req.body.habitat)
+
+        return res.status(200).send({
+            count: pokemonData.length,
+            pokemon: pokemonData
+        });
+    } catch (err) {
+        return res.status(400).send({
+            response: "Error with the API call"
+        });
+    }
 });
 
-async function getPokemonData() {
+async function getPokemonData(type, habitat) {
     let pokemon_response = []
-    const pokemon_type = await getPokemonType()
-    const pokemon_habitat = await getPokemonHabitat()
+    const pokemon_type = await getPokemonType(type)
+    const pokemon_habitat = await getPokemonHabitat(habitat)
 
     const common_pokemon = await findCommonPokemon(pokemon_type, pokemon_habitat)
     await getPokemonSprite(common_pokemon)
@@ -36,11 +48,16 @@ async function getPokemonData() {
 
 async function getPokemonSprite(pokemon_data) {
 
+    //create media directory if it doesn't exist
+    const dir = "./media"
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+    }
+
     pokemon_data.forEach(pokemon => {
         fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon.name}`)
             .then(data => data.json())
             .then(data => {
-                // console.log(data.sprites.back_default)
                 download(data.sprites.back_default, `./media/${pokemon.name}.png`, function(){})
             })
             .catch(err => {
@@ -51,13 +68,12 @@ async function getPokemonSprite(pokemon_data) {
 }
 
 
-async function getPokemonType() {
+async function getPokemonType(type) {
 
     let pokemon_type = null
-    await fetch("https://pokeapi.co/api/v2/type/3")
+    await fetch(`https://pokeapi.co/api/v2/type/${type}`)
         .then(data => data.json())
         .then(data => {
-            // console.log(data.pokemon)
             pokemon_type = data.pokemon
         })
         .catch(err => {
@@ -68,13 +84,12 @@ async function getPokemonType() {
 
 }
 
-async function getPokemonHabitat() {
+async function getPokemonHabitat(habitat) {
 
     let pokemon_habitat = null
-    await fetch("https://pokeapi.co/api/v2/pokemon-habitat/cave")
+    await fetch(`https://pokeapi.co/api/v2/pokemon-habitat/${habitat}`)
         .then(data => data.json())
         .then(data => {
-            // console.log(data.pokemon_species)
             pokemon_habitat = data.pokemon_species
         })
         .catch(err => {
